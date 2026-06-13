@@ -3,61 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MenuCity — Encontre Restaurantes e Cardápios Digitais</title>
-    <meta name="description" content="MenuCity: localize restaurantes próximos e visualize cardápios digitais completos. Descubra sabores na sua cidade.">
+    <meta name="description" content="MenuCity — API REST para localização de restaurantes e visualização de cardápios digitais. Projeto de TCC.">
+    <title>MenuCity — API de Restaurantes e Cardápios Digitais</title>
+
+    {{-- Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
-        /* ===== RESET & TOKENS ===== */
-        :root {
-            --bg-primary: #0f0f12;
-            --bg-secondary: #1a1a22;
-            --bg-card: #22222e;
-            --bg-card-hover: #2a2a38;
-            --surface: rgba(255, 255, 255, 0.04);
-            --surface-hover: rgba(255, 255, 255, 0.08);
-            --border: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(255, 255, 255, 0.15);
-
-            --text-primary: #f1f1f4;
-            --text-secondary: #9d9db5;
-            --text-muted: #6b6b82;
-
-            --orange-400: #fb923c;
-            --orange-500: #f97316;
-            --orange-600: #ea580c;
-            --amber-400: #fbbf24;
-            --amber-500: #f59e0b;
-            --red-500: #ef4444;
-            --green-400: #4ade80;
-            --green-500: #22c55e;
-            --emerald-400: #34d399;
-
-            --gradient-brand: linear-gradient(135deg, #f97316, #f59e0b);
-            --gradient-hero: linear-gradient(160deg, #1a1020 0%, #0f0f12 30%, #0f1218 70%, #0f0f12 100%);
-            --gradient-card: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
-
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
-            --shadow-md: 0 8px 30px rgba(0,0,0,0.4);
-            --shadow-lg: 0 20px 60px rgba(0,0,0,0.5);
-            --shadow-glow: 0 0 40px rgba(249,115,22,0.15);
-
-            --radius-sm: 8px;
-            --radius-md: 14px;
-            --radius-lg: 20px;
-            --radius-xl: 28px;
-            --radius-full: 999px;
-
-            --transition-fast: 0.15s ease;
-            --transition-base: 0.25s ease;
-            --transition-slow: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
+        /* ===== Reset & Base ===== */
         *, *::before, *::after {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-bg: #0a0a0f;
+            --color-bg-card: rgba(255, 255, 255, 0.04);
+            --color-bg-card-hover: rgba(255, 255, 255, 0.07);
+            --color-surface: #111118;
+            --color-border: rgba(255, 255, 255, 0.08);
+            --color-border-hover: rgba(255, 255, 255, 0.15);
+            --color-text: #e4e4e7;
+            --color-text-muted: #8b8b9e;
+            --color-text-heading: #fafafa;
+            --color-accent: #6d5cff;
+            --color-accent-light: #8b7dff;
+            --color-accent-glow: rgba(109, 92, 255, 0.25);
+            --color-secondary: #00d4aa;
+            --color-secondary-glow: rgba(0, 212, 170, 0.2);
+            --color-warm: #ff6b6b;
+            --color-amber: #f5a623;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --shadow-glow: 0 0 60px rgba(109, 92, 255, 0.08);
+            --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         html {
@@ -66,70 +51,55 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.7;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ===== SCROLLBAR ===== */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-primary); }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.12);
-            border-radius: 3px;
+        /* ===== Noise Overlay ===== */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
         }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
-        /* ===== UTILITIES ===== */
+        /* ===== Layout ===== */
         .container {
-            width: min(1200px, 90%);
+            max-width: 1120px;
             margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
         }
 
-        .section-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--orange-500);
-            margin-bottom: 0.6rem;
+        section {
+            padding: 100px 0;
         }
 
-        .section-title {
-            font-size: clamp(1.7rem, 4vw, 2.5rem);
-            font-weight: 800;
-            line-height: 1.15;
-            margin-bottom: 0.6rem;
+        /* ===== Typography ===== */
+        h1, h2, h3 {
+            color: var(--color-text-heading);
+            letter-spacing: -0.03em;
         }
 
-        .section-subtitle {
-            font-size: 1.05rem;
-            color: var(--text-secondary);
-            max-width: 540px;
-        }
-
-        /* ===== NAVBAR ===== */
+        /* ===== Navbar ===== */
         .navbar {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            z-index: 1000;
-            padding: 1rem 0;
-            transition: background var(--transition-base), box-shadow var(--transition-base), padding var(--transition-base);
-        }
-
-        .navbar.scrolled {
-            background: rgba(15, 15, 18, 0.85);
-            backdrop-filter: blur(20px) saturate(1.2);
-            -webkit-backdrop-filter: blur(20px) saturate(1.2);
-            box-shadow: 0 1px 0 var(--border);
-            padding: 0.65rem 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 0;
+            background: rgba(10, 10, 15, 0.7);
+            backdrop-filter: blur(20px) saturate(1.4);
+            -webkit-backdrop-filter: blur(20px) saturate(1.4);
+            border-bottom: 1px solid var(--color-border);
+            transition: var(--transition-base);
         }
 
         .navbar .container {
@@ -138,418 +108,295 @@
             justify-content: space-between;
         }
 
-        .logo {
+        .navbar-brand {
             display: flex;
             align-items: center;
             gap: 10px;
             text-decoration: none;
-            color: var(--text-primary);
-        }
-
-        .logo-icon {
-            width: 38px;
-            height: 38px;
-            background: var(--gradient-brand);
-            border-radius: 10px;
-            display: grid;
-            place-items: center;
-            font-size: 1.15rem;
-            box-shadow: 0 4px 15px rgba(249,115,22,0.3);
-        }
-
-        .logo-text {
             font-weight: 800;
             font-size: 1.25rem;
-            letter-spacing: -0.02em;
+            color: var(--color-text-heading);
         }
 
-        .logo-text span {
-            background: var(--gradient-brand);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-links {
+        .navbar-brand .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--color-accent), var(--color-secondary));
+            border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
-            gap: 2rem;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 32px;
             list-style: none;
         }
 
-        .nav-links a {
-            color: var(--text-secondary);
+        .navbar-links a {
             text-decoration: none;
-            font-size: 0.9rem;
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
             font-weight: 500;
-            transition: color var(--transition-fast);
+            transition: color var(--transition-base);
             position: relative;
         }
 
-        .nav-links a:hover {
-            color: var(--text-primary);
-        }
-
-        .nav-links a::after {
+        .navbar-links a::after {
             content: '';
             position: absolute;
             bottom: -4px;
             left: 0;
             width: 0;
             height: 2px;
-            background: var(--gradient-brand);
+            background: var(--color-accent);
             border-radius: 1px;
             transition: width var(--transition-base);
         }
 
-        .nav-links a:hover::after {
+        .navbar-links a:hover {
+            color: var(--color-text-heading);
+        }
+
+        .navbar-links a:hover::after {
             width: 100%;
         }
 
-        .nav-cta {
-            padding: 0.5rem 1.2rem;
-            background: var(--gradient-brand);
-            color: #fff !important;
-            border-radius: var(--radius-full);
-            font-weight: 600;
-            font-size: 0.88rem;
-            box-shadow: 0 4px 15px rgba(249,115,22,0.25);
-            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-        }
-
-        .nav-cta:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(249,115,22,0.35);
-        }
-
-        .nav-cta::after { display: none !important; }
-
-        .mobile-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        /* ===== HERO ===== */
+        /* ===== Hero Section ===== */
         .hero {
             min-height: 100vh;
             display: flex;
             align-items: center;
-            background: var(--gradient-hero);
             position: relative;
+            padding-top: 80px;
             overflow: hidden;
-            padding: 6rem 0 4rem;
         }
 
         .hero::before {
             content: '';
             position: absolute;
-            top: -30%;
-            right: -10%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: float 8s ease-in-out infinite;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, var(--color-accent-glow) 0%, transparent 70%);
+            pointer-events: none;
+            animation: heroGlow 8s ease-in-out infinite alternate;
         }
 
         .hero::after {
             content: '';
             position: absolute;
-            bottom: -20%;
-            left: -5%;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: float 10s ease-in-out infinite reverse;
+            bottom: -100px;
+            right: -200px;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--color-secondary-glow) 0%, transparent 70%);
+            pointer-events: none;
+            animation: heroGlow 10s ease-in-out infinite alternate-reverse;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-30px) scale(1.05); }
-        }
-
-        .hero .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-            position: relative;
-            z-index: 1;
+        @keyframes heroGlow {
+            0% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.15); }
         }
 
         .hero-content {
-            animation: slideUp 0.8s ease forwards;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            text-align: center;
+            max-width: 780px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
         }
 
         .hero-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 0.4rem 1rem;
-            background: rgba(249,115,22,0.1);
-            border: 1px solid rgba(249,115,22,0.2);
-            border-radius: var(--radius-full);
-            font-size: 0.82rem;
+            padding: 6px 16px;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: 100px;
+            font-size: 0.8rem;
             font-weight: 500;
-            color: var(--orange-400);
-            margin-bottom: 1.5rem;
+            color: var(--color-text-muted);
+            margin-bottom: 32px;
+            animation: fadeInUp 0.6s ease-out;
         }
 
-        .hero-badge .pulse {
-            width: 8px;
-            height: 8px;
-            background: var(--green-400);
+        .hero-badge .badge-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--color-secondary);
             border-radius: 50%;
             animation: pulse 2s ease-in-out infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
-            50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(74,222,128,0); }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
         }
 
         .hero h1 {
-            font-size: clamp(2.4rem, 5.5vw, 3.8rem);
+            font-size: clamp(2.5rem, 6vw, 4.2rem);
             font-weight: 900;
-            line-height: 1.08;
-            letter-spacing: -0.03em;
-            margin-bottom: 1.2rem;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.6s ease-out 0.1s both;
         }
 
-        .hero h1 .gradient {
-            background: var(--gradient-brand);
+        .hero h1 .gradient-text {
+            background: linear-gradient(135deg, var(--color-accent-light), var(--color-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .hero-desc {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            max-width: 480px;
-            margin-bottom: 2rem;
+        .hero-description {
+            font-size: 1.15rem;
+            color: var(--color-text-muted);
+            max-width: 560px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
         }
 
         .hero-actions {
             display: flex;
-            gap: 1rem;
+            gap: 16px;
+            justify-content: center;
             flex-wrap: wrap;
+            animation: fadeInUp 0.6s ease-out 0.3s both;
         }
 
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== Buttons ===== */
         .btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 0.85rem 1.8rem;
-            font-size: 0.95rem;
+            padding: 14px 28px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
             font-weight: 600;
             font-family: inherit;
-            border-radius: var(--radius-full);
-            border: none;
-            cursor: pointer;
             text-decoration: none;
+            cursor: pointer;
+            border: none;
             transition: all var(--transition-base);
         }
 
         .btn-primary {
-            background: var(--gradient-brand);
+            background: linear-gradient(135deg, var(--color-accent), #5a48e0);
             color: #fff;
-            box-shadow: 0 8px 25px rgba(249,115,22,0.3);
+            box-shadow: 0 4px 24px var(--color-accent-glow);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(249,115,22,0.4);
+            box-shadow: 0 8px 32px rgba(109, 92, 255, 0.35);
         }
 
-        .btn-secondary {
-            background: var(--surface);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
+        .btn-outline {
+            background: transparent;
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
         }
 
-        .btn-secondary:hover {
-            background: var(--surface-hover);
-            border-color: var(--border-hover);
+        .btn-outline:hover {
+            border-color: var(--color-border-hover);
+            background: var(--color-bg-card);
             transform: translateY(-2px);
         }
 
-        /* Hero Visual (right side) */
-        .hero-visual {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            animation: slideUp 0.8s 0.2s ease both;
-        }
-
-        .hero-phone {
-            width: 300px;
-            height: 580px;
-            background: var(--bg-card);
-            border-radius: 36px;
-            border: 2px solid var(--border);
-            box-shadow: var(--shadow-lg), var(--shadow-glow);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .phone-notch {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 28px;
-            background: var(--bg-primary);
-            border-radius: 0 0 18px 18px;
-            z-index: 2;
-        }
-
-        .phone-screen {
-            padding: 40px 16px 16px;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .phone-header {
+        /* ===== Section Headers ===== */
+        .section-header {
             text-align: center;
+            max-width: 600px;
+            margin: 0 auto 64px;
+        }
+
+        .section-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--color-accent-light);
+            margin-bottom: 12px;
+        }
+
+        .section-header h2 {
+            font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+            font-weight: 800;
             margin-bottom: 16px;
+            line-height: 1.2;
         }
 
-        .phone-header h3 {
-            font-size: 1rem;
-            font-weight: 700;
+        .section-header p {
+            color: var(--color-text-muted);
+            font-size: 1.05rem;
         }
 
-        .phone-header p {
-            font-size: 0.72rem;
-            color: var(--text-muted);
+        /* ===== Problema Section ===== */
+        .problema {
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            border-bottom: 1px solid var(--color-border);
         }
 
-        .phone-search {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 8px 12px;
-            display: flex;
+        .problema-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
             align-items: center;
-            gap: 8px;
+        }
+
+        .problema-text h2 {
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .problema-text p {
+            color: var(--color-text-muted);
+            font-size: 1.05rem;
             margin-bottom: 16px;
         }
 
-        .phone-search span {
-            font-size: 0.78rem;
-            color: var(--text-muted);
+        .problema-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 32px;
         }
 
-        .phone-categories {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            overflow: hidden;
+        .stat-card {
+            padding: 20px;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            text-align: center;
+            transition: all var(--transition-base);
         }
 
-        .phone-cat {
-            flex-shrink: 0;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-        }
-
-        .phone-cat.active {
-            background: var(--gradient-brand);
-            border-color: transparent;
-            color: #fff;
-        }
-
-        .phone-restaurant {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 10px;
-            transition: border-color var(--transition-fast);
-        }
-
-        .phone-restaurant:first-of-type {
-            border-color: rgba(249,115,22,0.3);
-        }
-
-        .phone-rest-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 6px;
-        }
-
-        .phone-rest-name {
-            font-size: 0.82rem;
-            font-weight: 700;
-        }
-
-        .phone-rest-rating {
-            font-size: 0.72rem;
-            color: var(--amber-400);
-            font-weight: 600;
-        }
-
-        .phone-rest-info {
-            font-size: 0.68rem;
-            color: var(--text-muted);
-        }
-
-        .phone-rest-tags {
-            display: flex;
-            gap: 5px;
-            margin-top: 6px;
-        }
-
-        .phone-rest-tag {
-            font-size: 0.62rem;
-            padding: 2px 7px;
-            border-radius: 4px;
-            background: rgba(249,115,22,0.1);
-            color: var(--orange-400);
-            font-weight: 500;
-        }
-
-        .phone-rest-tag.open {
-            background: rgba(34,197,94,0.1);
-            color: var(--green-400);
-        }
-
-        /* Stats strip */
-        .hero-stats {
-            display: flex;
-            gap: 2rem;
-            margin-top: 2.5rem;
-            padding-top: 2rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .stat-item {
-            text-align: left;
+        .stat-card:hover {
+            border-color: var(--color-border-hover);
+            background: var(--color-bg-card-hover);
+            transform: translateY(-2px);
         }
 
         .stat-value {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 800;
-            background: var(--gradient-brand);
+            background: linear-gradient(135deg, var(--color-accent-light), var(--color-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -557,1175 +404,757 @@
 
         .stat-label {
             font-size: 0.8rem;
-            color: var(--text-muted);
-            font-weight: 500;
+            color: var(--color-text-muted);
+            margin-top: 4px;
         }
 
-        /* ===== CATEGORIES ===== */
-        .categories {
-            padding: 5rem 0;
+        .problema-visual {
             position: relative;
         }
 
-        .categories-header {
-            text-align: center;
-            margin-bottom: 3rem;
+        .problema-illustration {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, rgba(109, 92, 255, 0.08), rgba(0, 212, 170, 0.06));
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6rem;
+            position: relative;
+            overflow: hidden;
         }
 
-        .categories-header .section-subtitle {
-            margin: 0 auto;
+        .problema-illustration::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 30%, var(--color-accent-glow) 0%, transparent 50%);
         }
 
-        .categories-grid {
+        .float-emoji {
+            position: absolute;
+            font-size: 2.5rem;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .float-emoji:nth-child(1) { top: 15%; left: 20%; animation-delay: 0s; }
+        .float-emoji:nth-child(2) { top: 25%; right: 18%; animation-delay: 1.5s; }
+        .float-emoji:nth-child(3) { bottom: 20%; left: 25%; animation-delay: 3s; }
+        .float-emoji:nth-child(4) { bottom: 30%; right: 22%; animation-delay: 4.5s; }
+        .float-emoji:nth-child(5) { top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 4rem; animation-delay: 0.5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* ===== Público-Alvo ===== */
+        .publico-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
         }
 
-        .category-card {
-            background: var(--gradient-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 1.4rem;
+        .publico-card {
+            padding: 36px 28px;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
             text-align: center;
-            cursor: pointer;
             transition: all var(--transition-base);
             position: relative;
             overflow: hidden;
         }
 
-        .category-card::before {
+        .publico-card::before {
             content: '';
             position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(249,115,22,0.08), transparent);
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--color-accent), var(--color-secondary));
             opacity: 0;
             transition: opacity var(--transition-base);
         }
 
-        .category-card:hover::before {
+        .publico-card:hover {
+            border-color: var(--color-border-hover);
+            background: var(--color-bg-card-hover);
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .publico-card:hover::before {
             opacity: 1;
         }
 
-        .category-card:hover {
-            border-color: rgba(249,115,22,0.3);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(249,115,22,0.1);
-        }
-
-        .category-card.active {
-            border-color: rgba(249,115,22,0.5);
-            background: rgba(249,115,22,0.06);
-        }
-
-        .category-icon {
-            font-size: 2.2rem;
-            margin-bottom: 0.6rem;
-            display: block;
-            position: relative;
-            z-index: 1;
-        }
-
-        .category-name {
-            font-weight: 600;
-            font-size: 0.92rem;
-            margin-bottom: 0.3rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .category-count {
-            font-size: 0.78rem;
-            color: var(--text-muted);
-            position: relative;
-            z-index: 1;
-        }
-
-        /* ===== RESTAURANTS ===== */
-        .restaurants {
-            padding: 3rem 0 5rem;
-        }
-
-        .restaurants-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .search-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-full);
-            padding: 0.55rem 1.2rem;
-            min-width: 280px;
-            transition: border-color var(--transition-base), box-shadow var(--transition-base);
-        }
-
-        .search-bar:focus-within {
-            border-color: rgba(249,115,22,0.4);
-            box-shadow: 0 0 0 3px rgba(249,115,22,0.1);
-        }
-
-        .search-bar svg {
-            flex-shrink: 0;
-            color: var(--text-muted);
-        }
-
-        .search-bar input {
-            border: none;
-            background: none;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            font-family: inherit;
-            outline: none;
-            width: 100%;
-        }
-
-        .search-bar input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .restaurants-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 1.2rem;
-        }
-
-        .restaurant-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            cursor: pointer;
-            transition: all var(--transition-slow);
-            position: relative;
-        }
-
-        .restaurant-card:hover {
-            border-color: var(--border-hover);
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .restaurant-image {
-            height: 180px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .restaurant-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform var(--transition-slow);
-        }
-
-        .restaurant-card:hover .restaurant-image img {
-            transform: scale(1.05);
-        }
-
-        .restaurant-image-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%);
-        }
-
-        .restaurant-status {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            padding: 4px 12px;
-            border-radius: var(--radius-full);
-            font-size: 0.72rem;
-            font-weight: 600;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .restaurant-status.open {
-            background: rgba(34,197,94,0.2);
-            color: var(--green-400);
-            border: 1px solid rgba(34,197,94,0.3);
-        }
-
-        .restaurant-status.closed {
-            background: rgba(239,68,68,0.2);
-            color: var(--red-500);
-            border: 1px solid rgba(239,68,68,0.3);
-        }
-
-        .restaurant-body {
-            padding: 1.2rem;
-        }
-
-        .restaurant-category {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--orange-400);
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            margin-bottom: 0.3rem;
-        }
-
-        .restaurant-name {
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin-bottom: 0.4rem;
-        }
-
-        .restaurant-address {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin-bottom: 0.8rem;
-        }
-
-        .restaurant-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 0.8rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .restaurant-rating {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .rating-star {
-            color: var(--amber-400);
-        }
-
-        .restaurant-action {
-            font-size: 0.82rem;
-            color: var(--orange-400);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: gap var(--transition-fast);
-        }
-
-        .restaurant-card:hover .restaurant-action {
-            gap: 8px;
-        }
-
-        /* ===== MENU MODAL ===== */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            z-index: 2000;
+        .publico-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
-            opacity: 0;
-            visibility: hidden;
-            transition: all var(--transition-base);
+            font-size: 1.8rem;
         }
 
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
+        .publico-card:nth-child(1) .publico-icon {
+            background: rgba(109, 92, 255, 0.12);
+        }
+        .publico-card:nth-child(2) .publico-icon {
+            background: rgba(0, 212, 170, 0.12);
+        }
+        .publico-card:nth-child(3) .publico-icon {
+            background: rgba(245, 166, 35, 0.12);
         }
 
-        .modal {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-xl);
-            width: min(580px, 100%);
-            max-height: 85vh;
-            overflow-y: auto;
-            transform: translateY(20px) scale(0.97);
-            transition: transform var(--transition-slow);
-            box-shadow: var(--shadow-lg);
+        .publico-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 10px;
         }
 
-        .modal-overlay.active .modal {
-            transform: translateY(0) scale(1);
+        .publico-card p {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+            line-height: 1.6;
         }
 
-        .modal-header {
-            padding: 1.5rem 1.5rem 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
+        /* ===== Funcionalidades ===== */
+        .funcionalidades {
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            border-bottom: 1px solid var(--color-border);
         }
 
-        .modal-close {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            cursor: pointer;
+        .funcionalidades-grid {
             display: grid;
-            place-items: center;
-            transition: all var(--transition-fast);
-            flex-shrink: 0;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
         }
 
-        .modal-close:hover {
-            background: var(--surface-hover);
-            border-color: var(--border-hover);
-            color: var(--text-primary);
+        .func-card {
+            padding: 40px 28px;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
         }
 
-        .modal-restaurant-name {
-            font-size: 1.4rem;
-            font-weight: 800;
-            margin-bottom: 0.2rem;
+        .func-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--color-accent), var(--color-secondary));
+            transition: width var(--transition-base);
         }
 
-        .modal-restaurant-category {
-            font-size: 0.85rem;
-            color: var(--orange-400);
-            font-weight: 500;
+        .func-card:hover {
+            border-color: var(--color-border-hover);
+            background: var(--color-bg-card-hover);
+            transform: translateY(-4px);
         }
 
-        .modal-body {
-            padding: 1.5rem;
+        .func-card:hover::after {
+            width: 60%;
         }
 
-        .menu-section-title {
-            font-size: 0.78rem;
+        .func-number {
+            font-size: 0.75rem;
             font-weight: 700;
+            color: var(--color-accent-light);
+            letter-spacing: 0.1em;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--text-muted);
-            margin-bottom: 0.8rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
         }
 
-        .menu-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            padding: 0.9rem 0;
-            border-bottom: 1px solid var(--border);
-            gap: 1rem;
+        .func-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            display: block;
         }
 
-        .menu-item:last-child {
-            border-bottom: none;
-        }
-
-        .menu-item-info {
-            flex: 1;
-        }
-
-        .menu-item-name {
-            font-weight: 600;
-            font-size: 0.95rem;
-            margin-bottom: 0.2rem;
-        }
-
-        .menu-item-desc {
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-
-        .menu-item-price {
+        .func-card h3 {
+            font-size: 1.2rem;
             font-weight: 700;
-            font-size: 1rem;
-            color: var(--orange-400);
-            white-space: nowrap;
+            margin-bottom: 12px;
         }
 
-        .menu-empty {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-muted);
+        .func-card p {
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
         }
 
-        /* ===== API STATUS BAR ===== */
-        .api-section {
-            padding: 4rem 0;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .api-header {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
-
-        .api-header .section-subtitle {
+        /* ===== Endpoints Section ===== */
+        .endpoints-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
-        .api-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 1rem;
-        }
-
-        .api-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
+        .endpoint-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 24px;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
             border-radius: var(--radius-md);
-            padding: 1.3rem;
+            text-decoration: none;
+            color: inherit;
             transition: all var(--transition-base);
+            group: endpoint;
         }
 
-        .api-card:hover {
-            border-color: var(--border-hover);
-            transform: translateY(-2px);
+        .endpoint-card:hover {
+            border-color: var(--color-accent);
+            background: var(--color-bg-card-hover);
+            transform: translateX(4px);
+            box-shadow: -4px 0 0 var(--color-accent);
         }
 
-        .api-method {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 5px;
-            font-size: 0.72rem;
+        .endpoint-method {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
             font-weight: 700;
-            letter-spacing: 0.04em;
-            background: rgba(34,197,94,0.12);
-            color: var(--green-400);
-            margin-bottom: 0.5rem;
-        }
-
-        .api-route {
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            font-size: 0.92rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.35rem;
-        }
-
-        .api-desc {
-            font-size: 0.82rem;
-            color: var(--text-muted);
-        }
-
-        .api-status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 6px;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .api-status-dot.online { background: var(--green-400); }
-        .api-status-dot.offline { background: var(--red-500); animation: none; }
-
-        /* ===== ABOUT SECTION ===== */
-        .about {
-            padding: 5rem 0;
-        }
-
-        .about-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            align-items: center;
-        }
-
-        .about-features {
-            display: flex;
-            flex-direction: column;
-            gap: 1.2rem;
-        }
-
-        .feature-item {
-            display: flex;
-            gap: 1rem;
-            align-items: start;
-        }
-
-        .feature-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: grid;
-            place-items: center;
-            font-size: 1.2rem;
+            letter-spacing: 0.05em;
+            background: rgba(0, 212, 170, 0.12);
+            color: var(--color-secondary);
             flex-shrink: 0;
-            background: rgba(249,115,22,0.08);
-            border: 1px solid rgba(249,115,22,0.15);
         }
 
-        .feature-text h3 {
-            font-size: 0.95rem;
-            font-weight: 700;
-            margin-bottom: 0.2rem;
+        .endpoint-info {
+            flex: 1;
+            min-width: 0;
         }
 
-        .feature-text p {
+        .endpoint-path {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-text-heading);
+            margin-bottom: 4px;
+        }
+
+        .endpoint-desc {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+        }
+
+        .endpoint-arrow {
+            font-size: 1.1rem;
+            color: var(--color-text-muted);
+            transition: all var(--transition-base);
+            flex-shrink: 0;
+        }
+
+        .endpoint-card:hover .endpoint-arrow {
+            color: var(--color-accent);
+            transform: translateX(4px);
+        }
+
+        .endpoints-note {
+            text-align: center;
+            margin-top: 32px;
+            padding: 16px 24px;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .endpoints-note code {
+            background: rgba(109, 92, 255, 0.12);
+            color: var(--color-accent-light);
+            padding: 3px 8px;
+            border-radius: 4px;
             font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.55;
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            padding: 3rem 0;
-            border-top: 1px solid var(--border);
-        }
-
-        .footer .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .footer-text {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .footer-tech {
-            display: flex;
-            gap: 0.6rem;
-            flex-wrap: wrap;
-        }
-
-        .footer-tag {
-            padding: 4px 12px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-full);
-            font-size: 0.75rem;
-            color: var(--text-secondary);
             font-weight: 500;
         }
 
-        /* ===== LOADING ===== */
-        .skeleton {
-            background: linear-gradient(90deg, var(--bg-card) 0%, var(--bg-card-hover) 50%, var(--bg-card) 100%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s ease-in-out infinite;
-            border-radius: var(--radius-md);
+        .endpoints-note p {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
         }
 
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        .no-results {
-            grid-column: 1 / -1;
+        /* ===== Footer ===== */
+        footer {
+            padding: 48px 0;
+            border-top: 1px solid var(--color-border);
             text-align: center;
-            padding: 4rem 2rem;
-            color: var(--text-muted);
         }
 
-        .no-results .icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--color-text-heading);
         }
 
-        .no-results p {
-            font-size: 1rem;
+        .footer-brand .brand-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--color-accent), var(--color-secondary));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
         }
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .hero .container {
+        footer p {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+        }
+
+        footer .footer-tech {
+            margin-top: 16px;
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        footer .footer-tech span {
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: 100px;
+            color: var(--color-text-muted);
+        }
+
+        /* ===== Scroll Animations ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== Mobile Menu Toggle ===== */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--color-text);
+            border-radius: 2px;
+            transition: var(--transition-base);
+        }
+
+        /* ===== Responsivo ===== */
+        @media (max-width: 900px) {
+            .problema-grid {
                 grid-template-columns: 1fr;
-                gap: 2.5rem;
-                text-align: center;
+                gap: 40px;
             }
 
-            .hero-desc { margin: 0 auto 2rem; }
-            .hero-actions { justify-content: center; }
-            .hero-stats { justify-content: center; }
-            .hero-visual { order: -1; }
-            .hero-phone { width: 240px; height: 460px; }
+            .problema-visual {
+                order: -1;
+            }
 
-            .nav-links { display: none; }
-            .mobile-toggle { display: block; }
+            .problema-illustration {
+                max-width: 300px;
+                margin: 0 auto;
+            }
 
-            .restaurants-header {
+            .publico-cards,
+            .funcionalidades-grid {
+                grid-template-columns: 1fr;
+                max-width: 480px;
+                margin: 0 auto;
+            }
+
+            .endpoints-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            section {
+                padding: 64px 0;
+            }
+
+            .navbar-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
                 flex-direction: column;
-                align-items: stretch;
+                background: rgba(10, 10, 15, 0.95);
+                backdrop-filter: blur(20px);
+                padding: 24px;
+                gap: 20px;
+                border-bottom: 1px solid var(--color-border);
             }
 
-            .search-bar { min-width: unset; }
+            .navbar-links.active {
+                display: flex;
+            }
 
-            .restaurants-grid {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-description {
+                font-size: 1rem;
+            }
+
+            .problema-stats {
                 grid-template-columns: 1fr;
-            }
-
-            .about-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .categories-grid {
-                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== NAVBAR ===== -->
-    <nav class="navbar" id="navbar">
+    {{-- ===== Navbar ===== --}}
+    <nav class="navbar" id="navbar" role="navigation" aria-label="Navegação principal">
         <div class="container">
-            <a href="#" class="logo">
-                <div class="logo-icon">📍</div>
-                <div class="logo-text">Menu<span>City</span></div>
+            <a href="#" class="navbar-brand" id="nav-brand">
+                <span class="brand-icon" aria-hidden="true">🍽️</span>
+                MenuCity
             </a>
-            <ul class="nav-links">
-                <li><a href="#categorias">Categorias</a></li>
-                <li><a href="#restaurantes">Restaurantes</a></li>
-                <li><a href="#api">API</a></li>
-                <li><a href="#sobre">Sobre</a></li>
-                <li><a href="#api" class="nav-cta">Testar API</a></li>
+
+            <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <ul class="navbar-links" id="navbar-links" role="menubar">
+                <li role="none"><a href="#problema" role="menuitem">O Problema</a></li>
+                <li role="none"><a href="#publico" role="menuitem">Público-Alvo</a></li>
+                <li role="none"><a href="#funcionalidades" role="menuitem">Funcionalidades</a></li>
+                <li role="none"><a href="#endpoints" role="menuitem">Endpoints</a></li>
             </ul>
-            <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">☰</button>
         </div>
     </nav>
 
-    <!-- ===== HERO ===== -->
-    <section class="hero" id="hero">
+    {{-- ===== Hero ===== --}}
+    <header class="hero" id="hero">
         <div class="container">
             <div class="hero-content">
                 <div class="hero-badge">
-                    <span class="pulse"></span>
-                    API Online — v1.0.0
+                    <span class="badge-dot" aria-hidden="true"></span>
+                    Projeto de TCC — API REST publicada no Render
                 </div>
+
                 <h1>
-                    Descubra sabores.<br>
-                    Explore <span class="gradient">cardápios.</span>
+                    Encontre restaurantes.<br>
+                    Explore <span class="gradient-text">cardápios digitais</span>.
                 </h1>
-                <p class="hero-desc">
-                    Encontre restaurantes próximos e visualize cardápios digitais completos.
-                    Tudo em um só lugar, direto do seu celular.
+
+                <p class="hero-description">
+                    MenuCity é uma API RESTful que conecta usuários a restaurantes próximos,
+                    permitindo a consulta de cardápios digitais, categorias culinárias e
+                    informações de geolocalização em tempo real.
                 </p>
+
                 <div class="hero-actions">
-                    <a href="#restaurantes" class="btn btn-primary">
-                        🔍 Explorar Restaurantes
+                    <a href="#endpoints" class="btn btn-primary" id="btn-ver-endpoints">
+                        🚀 Ver Endpoints
                     </a>
-                    <a href="#api" class="btn btn-secondary">
-                        { } Ver Endpoints
+                    <a href="#funcionalidades" class="btn btn-outline" id="btn-conhecer-projeto">
+                        Conhecer o Projeto →
                     </a>
                 </div>
-                <div class="hero-stats">
-                    <div class="stat-item">
-                        <div class="stat-value" id="statRestaurantes">—</div>
-                        <div class="stat-label">Restaurantes</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="statCategorias">—</div>
-                        <div class="stat-label">Categorias</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="statCardapios">—</div>
-                        <div class="stat-label">Cardápios</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="hero-visual">
-                <div class="hero-phone">
-                    <div class="phone-notch"></div>
-                    <div class="phone-screen">
-                        <div class="phone-header">
-                            <h3>📍 MenuCity</h3>
-                            <p>Sua cidade, seus sabores</p>
-                        </div>
-                        <div class="phone-search">
-                            <span>🔍</span>
-                            <span>Buscar restaurante...</span>
-                        </div>
-                        <div class="phone-categories">
-                            <div class="phone-cat active">🍽️ Todos</div>
-                            <div class="phone-cat">🇧🇷 Brasileira</div>
-                            <div class="phone-cat">🇯🇵 Japonesa</div>
-                            <div class="phone-cat">🍕 Pizza</div>
-                        </div>
-                        <div class="phone-restaurant">
-                            <div class="phone-rest-header">
-                                <div class="phone-rest-name">Sabor da Terra</div>
-                                <div class="phone-rest-rating">⭐ 4.7</div>
-                            </div>
-                            <div class="phone-rest-info">Rua das Flores, 123 — Centro</div>
-                            <div class="phone-rest-tags">
-                                <span class="phone-rest-tag">Brasileira</span>
-                                <span class="phone-rest-tag open">● Aberto</span>
-                            </div>
-                        </div>
-                        <div class="phone-restaurant">
-                            <div class="phone-rest-header">
-                                <div class="phone-rest-name">Tokyo Sushi</div>
-                                <div class="phone-rest-rating">⭐ 4.5</div>
-                            </div>
-                            <div class="phone-rest-info">Av. Paulista, 456</div>
-                            <div class="phone-rest-tags">
-                                <span class="phone-rest-tag">Japonesa</span>
-                            </div>
-                        </div>
-                        <div class="phone-restaurant">
-                            <div class="phone-rest-header">
-                                <div class="phone-rest-name">Bella Massa</div>
-                                <div class="phone-rest-rating">⭐ 4.8</div>
-                            </div>
-                            <div class="phone-rest-info">Rua Augusta, 789</div>
-                            <div class="phone-rest-tags">
-                                <span class="phone-rest-tag">Italiana</span>
-                                <span class="phone-rest-tag open">● Aberto</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
-    </section>
+    </header>
 
-    <!-- ===== CATEGORIAS ===== -->
-    <section class="categories" id="categorias">
-        <div class="container">
-            <div class="categories-header">
-                <div class="section-label">🍴 Explore por tipo</div>
-                <h2 class="section-title">Categorias de Culinária</h2>
-                <p class="section-subtitle">Filtre os restaurantes pelo estilo de comida que você está procurando.</p>
-            </div>
-            <div class="categories-grid" id="categoriesGrid">
-                <!-- Preenchido via JS -->
-            </div>
-        </div>
-    </section>
+    <main>
+        {{-- ===== O Problema ===== --}}
+        <section class="problema" id="problema">
+            <div class="container">
+                <div class="problema-grid reveal">
+                    <div class="problema-text">
+                        <p class="section-label">O Problema</p>
+                        <h2>Informações de restaurantes espalhadas e desatualizadas</h2>
+                        <p>
+                            Consumidores enfrentam dificuldade para encontrar restaurantes próximos
+                            e consultar cardápios atualizados. Muitos estabelecimentos ainda não
+                            possuem presença digital eficiente, resultando em experiências
+                            fragmentadas para quem busca uma refeição.
+                        </p>
+                        <p>
+                            O MenuCity resolve isso ao centralizar dados de restaurantes, cardápios
+                            e categorias em uma API única, padronizada e de fácil integração.
+                        </p>
 
-    <!-- ===== RESTAURANTES ===== -->
-    <section class="restaurants" id="restaurantes">
-        <div class="container">
-            <div class="restaurants-header">
-                <div>
-                    <div class="section-label">📍 Perto de você</div>
-                    <h2 class="section-title">Restaurantes</h2>
-                </div>
-                <div class="search-bar">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                    <input type="text" id="searchInput" placeholder="Buscar por nome ou categoria...">
-                </div>
-            </div>
-            <div class="restaurants-grid" id="restaurantsGrid">
-                <!-- Preenchido via JS -->
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== API SECTION ===== -->
-    <section class="api-section" id="api">
-        <div class="container">
-            <div class="api-header">
-                <div class="section-label">⚡ REST API</div>
-                <h2 class="section-title">Endpoints Disponíveis</h2>
-                <p class="section-subtitle">Todos os endpoints retornam JSON e estão prontos para consumo pelo aplicativo mobile.</p>
-            </div>
-            <div class="api-grid" id="apiGrid">
-                <div class="api-card">
-                    <div class="api-method">GET</div>
-                    <div class="api-route">
-                        <span class="api-status-dot" id="apiDot"></span>
-                        /api/status
+                        <div class="problema-stats">
+                            <div class="stat-card">
+                                <div class="stat-value">72%</div>
+                                <div class="stat-label">buscam cardápio online antes de ir</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">4+</div>
+                                <div class="stat-label">endpoints RESTful disponíveis</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="api-desc">Saúde e informações gerais da API</div>
-                </div>
-                <div class="api-card">
-                    <div class="api-method">GET</div>
-                    <div class="api-route">/api/restaurantes</div>
-                    <div class="api-desc">Lista de restaurantes com localização e avaliação</div>
-                </div>
-                <div class="api-card">
-                    <div class="api-method">GET</div>
-                    <div class="api-route">/api/cardapios</div>
-                    <div class="api-desc">Cardápios digitais dos restaurantes</div>
-                </div>
-                <div class="api-card">
-                    <div class="api-method">GET</div>
-                    <div class="api-route">/api/categorias</div>
-                    <div class="api-desc">Categorias de culinária disponíveis</div>
+
+                    <div class="problema-visual" aria-hidden="true">
+                        <div class="problema-illustration">
+                            <span class="float-emoji">🍕</span>
+                            <span class="float-emoji">🍣</span>
+                            <span class="float-emoji">🥗</span>
+                            <span class="float-emoji">☕</span>
+                            <span class="float-emoji">📍</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- ===== SOBRE ===== -->
-    <section class="about" id="sobre">
-        <div class="container">
-            <div class="about-grid">
-                <div>
-                    <div class="section-label">📝 Sobre o projeto</div>
-                    <h2 class="section-title">MenuCity — TCC</h2>
-                    <p class="section-subtitle" style="margin-bottom: 1.5rem;">
-                        Sistema online composto por aplicação web e aplicativo mobile, destinado à consulta de restaurantes e visualização de cardápios digitais.
+        {{-- ===== Público-Alvo ===== --}}
+        <section id="publico">
+            <div class="container">
+                <div class="section-header reveal">
+                    <p class="section-label">Público-Alvo</p>
+                    <h2>Para quem o MenuCity foi pensado</h2>
+                    <p>Uma API que atende diferentes perfis de uso no ecossistema de alimentação fora do lar.</p>
+                </div>
+
+                <div class="publico-cards reveal">
+                    <article class="publico-card" id="publico-consumidores">
+                        <div class="publico-icon" aria-hidden="true">👤</div>
+                        <h3>Consumidores</h3>
+                        <p>
+                            Pessoas que desejam encontrar restaurantes próximos, comparar
+                            opções de cardápio e descobrir novos sabores na cidade.
+                        </p>
+                    </article>
+
+                    <article class="publico-card" id="publico-desenvolvedores">
+                        <div class="publico-icon" aria-hidden="true">💻</div>
+                        <h3>Desenvolvedores</h3>
+                        <p>
+                            Profissionais e estudantes que precisam integrar dados
+                            de restaurantes e cardápios em aplicações web ou mobile.
+                        </p>
+                    </article>
+
+                    <article class="publico-card" id="publico-restaurantes">
+                        <div class="publico-icon" aria-hidden="true">🏪</div>
+                        <h3>Restaurantes</h3>
+                        <p>
+                            Estabelecimentos que buscam ampliar sua presença digital
+                            e disponibilizar cardápios atualizados para mais clientes.
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        {{-- ===== Funcionalidades ===== --}}
+        <section class="funcionalidades" id="funcionalidades">
+            <div class="container">
+                <div class="section-header reveal">
+                    <p class="section-label">Funcionalidades</p>
+                    <h2>O que a API oferece</h2>
+                    <p>Três pilares principais que sustentam a experiência do MenuCity.</p>
+                </div>
+
+                <div class="funcionalidades-grid reveal">
+                    <article class="func-card" id="func-geolocalizacao">
+                        <span class="func-number">01</span>
+                        <span class="func-icon" aria-hidden="true">📍</span>
+                        <h3>Localização de Restaurantes</h3>
+                        <p>
+                            Consulta de restaurantes cadastrados com dados de endereço,
+                            coordenadas geográficas (latitude/longitude), categoria culinária
+                            e status de funcionamento.
+                        </p>
+                    </article>
+
+                    <article class="func-card" id="func-cardapios">
+                        <span class="func-number">02</span>
+                        <span class="func-icon" aria-hidden="true">📋</span>
+                        <h3>Cardápios Digitais</h3>
+                        <p>
+                            Acesso a cardápios completos por restaurante, incluindo nome do
+                            prato, descrição, preço e categoria — tudo em formato JSON
+                            padronizado.
+                        </p>
+                    </article>
+
+                    <article class="func-card" id="func-categorias">
+                        <span class="func-number">03</span>
+                        <span class="func-icon" aria-hidden="true">🏷️</span>
+                        <h3>Categorias Culinárias</h3>
+                        <p>
+                            Filtro por tipo de culinária — brasileira, japonesa, italiana,
+                            fast food, pizzaria — com contagem de restaurantes por
+                            categoria.
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        {{-- ===== Endpoints da API ===== --}}
+        <section id="endpoints">
+            <div class="container">
+                <div class="section-header reveal">
+                    <p class="section-label">Endpoints da API</p>
+                    <h2>Explore a API em tempo real</h2>
+                    <p>Clique em qualquer endpoint para ver a resposta JSON diretamente no navegador.</p>
+                </div>
+
+                <div class="endpoints-grid reveal">
+                    <a href="/api/status" target="_blank" rel="noopener" class="endpoint-card" id="endpoint-status">
+                        <span class="endpoint-method">GET</span>
+                        <div class="endpoint-info">
+                            <div class="endpoint-path">/api/status</div>
+                            <div class="endpoint-desc">Saúde e informações gerais da API</div>
+                        </div>
+                        <span class="endpoint-arrow" aria-hidden="true">→</span>
+                    </a>
+
+                    <a href="/api/restaurantes" target="_blank" rel="noopener" class="endpoint-card" id="endpoint-restaurantes">
+                        <span class="endpoint-method">GET</span>
+                        <div class="endpoint-info">
+                            <div class="endpoint-path">/api/restaurantes</div>
+                            <div class="endpoint-desc">Lista de restaurantes cadastrados</div>
+                        </div>
+                        <span class="endpoint-arrow" aria-hidden="true">→</span>
+                    </a>
+
+                    <a href="/api/cardapios" target="_blank" rel="noopener" class="endpoint-card" id="endpoint-cardapios">
+                        <span class="endpoint-method">GET</span>
+                        <div class="endpoint-info">
+                            <div class="endpoint-path">/api/cardapios</div>
+                            <div class="endpoint-desc">Cardápios digitais dos restaurantes</div>
+                        </div>
+                        <span class="endpoint-arrow" aria-hidden="true">→</span>
+                    </a>
+
+                    <a href="/api/categorias" target="_blank" rel="noopener" class="endpoint-card" id="endpoint-categorias">
+                        <span class="endpoint-method">GET</span>
+                        <div class="endpoint-info">
+                            <div class="endpoint-path">/api/categorias</div>
+                            <div class="endpoint-desc">Categorias de culinária disponíveis</div>
+                        </div>
+                        <span class="endpoint-arrow" aria-hidden="true">→</span>
+                    </a>
+                </div>
+
+                <div class="endpoints-note reveal">
+                    <p>
+                        Base URL da API: <code>{{ url('/api') }}</code> — Todos os endpoints retornam <code>application/json</code>
                     </p>
                 </div>
-                <div class="about-features">
-                    <div class="feature-item">
-                        <div class="feature-icon">📍</div>
-                        <div class="feature-text">
-                            <h3>Localização em tempo real</h3>
-                            <p>Encontre restaurantes próximos usando coordenadas de GPS e visualize-os no mapa.</p>
-                        </div>
-                    </div>
-                    <div class="feature-item">
-                        <div class="feature-icon">📱</div>
-                        <div class="feature-text">
-                            <h3>Cardápio Digital</h3>
-                            <p>Consulte pratos, bebidas e preços sem precisar ir presencialmente ao restaurante.</p>
-                        </div>
-                    </div>
-                    <div class="feature-item">
-                        <div class="feature-icon">🔍</div>
-                        <div class="feature-text">
-                            <h3>Busca Inteligente</h3>
-                            <p>Filtre por categoria, nome ou avaliação para encontrar exatamente o que procura.</p>
-                        </div>
-                    </div>
-                    <div class="feature-item">
-                        <div class="feature-icon">⚡</div>
-                        <div class="feature-text">
-                            <h3>API REST</h3>
-                            <p>Backend Laravel com endpoints JSON prontos para integração com apps mobile e web.</p>
-                        </div>
-                    </div>
-                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <!-- ===== FOOTER ===== -->
-    <footer class="footer">
+    {{-- ===== Footer ===== --}}
+    <footer id="footer">
         <div class="container">
-            <div class="footer-text">
-                MenuCity © 2026 — Projeto de TCC
+            <div class="footer-brand">
+                <span class="brand-icon" aria-hidden="true">🍽️</span>
+                MenuCity
             </div>
+            <p>Trabalho de Conclusão de Curso — {{ date('Y') }}</p>
             <div class="footer-tech">
-                <span class="footer-tag">Laravel 12</span>
-                <span class="footer-tag">PHP 8+</span>
-                <span class="footer-tag">SQLite</span>
-                <span class="footer-tag">REST API</span>
-                <span class="footer-tag">Render</span>
+                <span>Laravel</span>
+                <span>PHP</span>
+                <span>API REST</span>
+                <span>Render</span>
             </div>
         </div>
     </footer>
 
-    <!-- ===== MODAL ===== -->
-    <div class="modal-overlay" id="menuModal">
-        <div class="modal">
-            <div class="modal-header">
-                <div>
-                    <div class="modal-restaurant-name" id="modalName"></div>
-                    <div class="modal-restaurant-category" id="modalCategory"></div>
-                </div>
-                <button class="modal-close" id="modalClose">✕</button>
-            </div>
-            <div class="modal-body" id="modalBody">
-                <!-- Itens do cardápio preenchidos via JS -->
-            </div>
-        </div>
-    </div>
-
+    {{-- ===== Scripts ===== --}}
     <script>
-    (function() {
-        'use strict';
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const navbarLinks = document.getElementById('navbar-links');
 
-        // ===== STATE =====
-        let restaurantes = [];
-        let categorias = [];
-        let cardapios = [];
-        let activeCategory = null;
-
-        // ===== IMAGES — placeholder covers based on category =====
-        const categoryImages = {
-            'Comida Brasileira': 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&h=360&fit=crop',
-            'Comida Japonesa':   'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=600&h=360&fit=crop',
-            'Comida Italiana':   'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=360&fit=crop',
-            'default':           'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&h=360&fit=crop',
-        };
-
-        function getImage(categoria) {
-            return categoryImages[categoria] || categoryImages['default'];
-        }
-
-        // ===== FETCH DATA =====
-        async function loadData() {
-            try {
-                const [resRest, resCat, resCard, resStatus] = await Promise.all([
-                    fetch('/api/restaurantes').then(r => r.json()),
-                    fetch('/api/categorias').then(r => r.json()),
-                    fetch('/api/cardapios').then(r => r.json()),
-                    fetch('/api/status').then(r => r.json()),
-                ]);
-
-                restaurantes = resRest.dados || [];
-                categorias = resCat.dados || [];
-                cardapios = resCard.dados || [];
-
-                // Update stats
-                document.getElementById('statRestaurantes').textContent = restaurantes.length;
-                document.getElementById('statCategorias').textContent = categorias.length;
-                document.getElementById('statCardapios').textContent = cardapios.length;
-
-                // API status dot
-                const dot = document.getElementById('apiDot');
-                if (resStatus.status === 'online') {
-                    dot.classList.add('online');
-                } else {
-                    dot.classList.add('offline');
-                }
-
-                renderCategories();
-                renderRestaurants();
-            } catch (err) {
-                console.error('Erro ao carregar dados da API:', err);
-                const dot = document.getElementById('apiDot');
-                dot.classList.add('offline');
-            }
-        }
-
-        // ===== RENDER CATEGORIES =====
-        function renderCategories() {
-            const grid = document.getElementById('categoriesGrid');
-
-            // "All" card
-            let html = `
-                <div class="category-card ${activeCategory === null ? 'active' : ''}" data-category="all">
-                    <span class="category-icon">🍽️</span>
-                    <div class="category-name">Todas</div>
-                    <div class="category-count">${restaurantes.length} restaurantes</div>
-                </div>
-            `;
-
-            categorias.forEach(cat => {
-                const isActive = activeCategory === cat.nome;
-                html += `
-                    <div class="category-card ${isActive ? 'active' : ''}" data-category="${cat.nome}">
-                        <span class="category-icon">${cat.icone}</span>
-                        <div class="category-name">${cat.nome}</div>
-                        <div class="category-count">${cat.total_restaurantes} restaurantes</div>
-                    </div>
-                `;
-            });
-
-            grid.innerHTML = html;
-
-            // Event listeners
-            grid.querySelectorAll('.category-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    const cat = card.dataset.category;
-                    activeCategory = cat === 'all' ? null : cat;
-                    renderCategories();
-                    renderRestaurants();
-
-                    // Scroll to restaurants
-                    document.getElementById('restaurantes').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                });
-            });
-        }
-
-        // ===== RENDER RESTAURANTS =====
-        function renderRestaurants() {
-            const grid = document.getElementById('restaurantsGrid');
-            const search = document.getElementById('searchInput').value.toLowerCase().trim();
-
-            let filtered = restaurantes;
-
-            // Filter by category
-            if (activeCategory) {
-                filtered = filtered.filter(r => r.categoria === activeCategory);
-            }
-
-            // Filter by search
-            if (search) {
-                filtered = filtered.filter(r =>
-                    r.nome.toLowerCase().includes(search) ||
-                    r.categoria.toLowerCase().includes(search) ||
-                    r.endereco.toLowerCase().includes(search)
-                );
-            }
-
-            if (filtered.length === 0) {
-                grid.innerHTML = `
-                    <div class="no-results">
-                        <div class="icon">🔍</div>
-                        <p>Nenhum restaurante encontrado.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            grid.innerHTML = filtered.map(r => `
-                <article class="restaurant-card" data-id="${r.id}">
-                    <div class="restaurant-image">
-                        <img src="${getImage(r.categoria)}" alt="${r.nome}" loading="lazy">
-                        <div class="restaurant-image-overlay"></div>
-                        <span class="restaurant-status ${r.aberto ? 'open' : 'closed'}">
-                            ${r.aberto ? '● Aberto' : '● Fechado'}
-                        </span>
-                    </div>
-                    <div class="restaurant-body">
-                        <div class="restaurant-category">${r.categoria}</div>
-                        <div class="restaurant-name">${r.nome}</div>
-                        <div class="restaurant-address">
-                            <span>📍</span> ${r.endereco}
-                        </div>
-                        <div class="restaurant-footer">
-                            <div class="restaurant-rating">
-                                <span class="rating-star">⭐</span>
-                                ${r.avaliacao.toFixed(1)}
-                            </div>
-                            <div class="restaurant-action">
-                                Ver Cardápio <span>→</span>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-            `).join('');
-
-            // Click to open menu modal
-            grid.querySelectorAll('.restaurant-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    const id = parseInt(card.dataset.id);
-                    openMenuModal(id);
-                });
-            });
-        }
-
-        // ===== MENU MODAL =====
-        function openMenuModal(restauranteId) {
-            const rest = restaurantes.find(r => r.id === restauranteId);
-            const cardapio = cardapios.find(c => c.restaurante_id === restauranteId);
-
-            if (!rest) return;
-
-            document.getElementById('modalName').textContent = rest.nome;
-            document.getElementById('modalCategory').textContent = rest.categoria;
-
-            const body = document.getElementById('modalBody');
-
-            if (!cardapio || !cardapio.itens || cardapio.itens.length === 0) {
-                body.innerHTML = `
-                    <div class="menu-empty">
-                        <p>📋 Cardápio ainda não disponível para este restaurante.</p>
-                    </div>
-                `;
-            } else {
-                // Group items by category
-                const groups = {};
-                cardapio.itens.forEach(item => {
-                    const cat = item.categoria || 'Outros';
-                    if (!groups[cat]) groups[cat] = [];
-                    groups[cat].push(item);
-                });
-
-                let html = '';
-                for (const [cat, items] of Object.entries(groups)) {
-                    html += `<div class="menu-section-title">${cat}</div>`;
-                    items.forEach(item => {
-                        html += `
-                            <div class="menu-item">
-                                <div class="menu-item-info">
-                                    <div class="menu-item-name">${item.nome}</div>
-                                    <div class="menu-item-desc">${item.descricao}</div>
-                                </div>
-                                <div class="menu-item-price">R$ ${item.preco.toFixed(2).replace('.', ',')}</div>
-                            </div>
-                        `;
-                    });
-                }
-
-                body.innerHTML = html;
-            }
-
-            document.getElementById('menuModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() {
-            document.getElementById('menuModal').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        // ===== EVENT LISTENERS =====
-        document.getElementById('modalClose').addEventListener('click', closeModal);
-        document.getElementById('menuModal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) closeModal();
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
+        menuToggle.addEventListener('click', () => {
+            const isOpen = navbarLinks.classList.toggle('active');
+            menuToggle.setAttribute('aria-expanded', isOpen);
         });
 
-        // Search
-        document.getElementById('searchInput').addEventListener('input', renderRestaurants);
+        // Close menu on link click (mobile)
+        navbarLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navbarLinks.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        // Scroll reveal animation
+        const revealElements = document.querySelectorAll('.reveal');
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.15,
+            rootMargin: '0px 0px -40px 0px'
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
 
         // Navbar scroll effect
-        let ticking = false;
+        let lastScrollY = 0;
+        const navbar = document.getElementById('navbar');
+
         window.addEventListener('scroll', () => {
-            if (!ticking) {
-                requestAnimationFrame(() => {
-                    const navbar = document.getElementById('navbar');
-                    if (window.scrollY > 40) {
-                        navbar.classList.add('scrolled');
-                    } else {
-                        navbar.classList.remove('scrolled');
-                    }
-                    ticking = false;
-                });
-                ticking = true;
+            const scrollY = window.scrollY;
+            if (scrollY > 60) {
+                navbar.style.borderBottomColor = 'rgba(255, 255, 255, 0.12)';
+            } else {
+                navbar.style.borderBottomColor = 'rgba(255, 255, 255, 0.08)';
             }
-        });
-
-        // Mobile menu toggle
-        document.getElementById('mobileToggle').addEventListener('click', () => {
-            const links = document.querySelector('.nav-links');
-            links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
-            links.style.flexDirection = 'column';
-            links.style.position = 'absolute';
-            links.style.top = '100%';
-            links.style.left = '0';
-            links.style.right = '0';
-            links.style.background = 'rgba(15,15,18,0.95)';
-            links.style.backdropFilter = 'blur(20px)';
-            links.style.padding = '1rem 5%';
-            links.style.borderBottom = '1px solid var(--border)';
-        });
-
-        // Show skeletons initially
-        function showSkeletons() {
-            const catGrid = document.getElementById('categoriesGrid');
-            const restGrid = document.getElementById('restaurantsGrid');
-
-            catGrid.innerHTML = Array(5).fill('').map(() =>
-                `<div class="skeleton" style="height:120px;"></div>`
-            ).join('');
-
-            restGrid.innerHTML = Array(3).fill('').map(() =>
-                `<div class="skeleton" style="height:320px;"></div>`
-            ).join('');
-        }
-
-        // ===== INIT =====
-        showSkeletons();
-        loadData();
-    })();
+            lastScrollY = scrollY;
+        }, { passive: true });
     </script>
+
 </body>
 </html>
